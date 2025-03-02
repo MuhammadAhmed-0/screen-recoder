@@ -13,9 +13,6 @@ This is a simple **Screen Recorder** built using **HTML**, **CSS**, and **JavaSc
 
 The web application leverages the **MediaDevices API** to capture the user's screen, specifically using the `getDisplayMedia` function to capture the screen. The **MediaRecorder API** is then used to record the screen stream, and upon stopping the recording, the recorded video is packaged into a downloadable MP4 file.
 
-## Screenshots
-
-![Screenshot](screenshot.png)
 
 ## Technologies Used
 
