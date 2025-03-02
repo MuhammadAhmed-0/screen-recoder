@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Screen Recorder</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        background-color: #f0f2f5;
+    }
+
+    #video-container {
+        width: 80%;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    video {
+        display: block; /* Removes default margin from inline-block */
+        width: 100%;
+        max-height: 500px; /* Limits the size of the video */
+    }
+
+    #controls-container {
+        display: flex;
+        gap: 10px; /* Adds space between buttons */
+    }
+
+    .btn {
+        padding: 10px 20px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn:hover, .btn:focus {
+        background-color: #3e8e41;
+        outline: none;
+    }
+
+    .btn:disabled {
+        background-color: #9e9e9e;
+        cursor: not-allowed;
+    }
+
+    .btn#stop-btn:disabled {
+        display: none; /* Hides the stop button when disabled */
+    }
+
+    .btn#start-btn.recording {
+        background-color: #d9534f;
+    }
+
+    .btn#start-btn.recording:hover, .btn#start-btn.recording:focus {
+        background-color: #c9302c;
+    }
+</style>
+
+</head>
+<body>
+	<div id="video-container">
+		<video id="video-preview" autoplay muted></video>
+	</div>
+	<div id="controls-container">
+		<button id="start-btn" class="btn">Start Recording</button>
+		<button id="stop-btn" class="btn" disabled>Stop Recording</button>
+	</div>
+	<script>
+let stream;
+let recorder;
+let videoPreview = document.getElementById("video-preview");
+let startBtn = document.getElementById("start-btn");
+let stopBtn = document.getElementById("stop-btn");
+
+async function startRecording() {
+	stream = await navigator.mediaDevices.getDisplayMedia({
+		video: { mediaSource: "screen" },
+		audio: false
+	});
+	videoPreview.srcObject = stream;
+	videoPreview.play();
+	recorder = new MediaRecorder(stream);
+	let chunks = [];
+	recorder.ondataavailable = function(e) {
+		chunks.push(e.data);
+	};
+	recorder.onstop = function() {
+		let blob = new Blob(chunks, { type: "video/mp4" });
+		let videoUrl = URL.createObjectURL(blob);
+		let downloadLink = document.createElement("a");
+		downloadLink.href = videoUrl;
+		downloadLink.download = "recording.mp4";
+		downloadLink.click();
+	};
+	recorder.start();
+	startBtn.disabled = true;
+	stopBtn.disabled = false;
+}
+
+function stopRecording() {
+	recorder.stop();
+	stream.getTracks().forEach(track => track.stop());
+	startBtn.disabled = false;
+	stopBtn.disabled = true;
+}
+
+startBtn.addEventListener("click", startRecording);
+stopBtn.addEventListener("click", stopRecording);
+
+</script>
+</body>
+</html>
